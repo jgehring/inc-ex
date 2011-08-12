@@ -1,0 +1,21 @@
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#define TEST "test"
+
+
+float mysqrtf(float f) {
+	return sqrtf(f);
+}
+
+int main() {
+	printf("hello world\n");
+	printf("root(2) = %g\n", mysqrtf(2.0f));
+
+	size_t l = EXIT_SUCCESS;
+	printf("l = %ld\n", l);
+
+	return 0;
+}

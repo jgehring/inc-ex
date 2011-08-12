@@ -1,0 +1,15 @@
+Inc-Ex - Report redundant includes in C/C++ code
+================================================
+
+Inc-Ex is a simple C program that reports redundant, i.e.  unreferenced
+headers included in a C/C++ source file. It uses the Clang, a front-end
+for the LLVM compiler.
+
+Feel free to send feedback and bug reports to:
+	Jonas Gehring jonas.gehring@boolsoft.org>
+
+
+License
+-------
+Inc-Ex is free software and released under a 3-clause BSD license
+("Modified BSD License").  Please see the COPYING file for details.
