@@ -65,6 +65,22 @@ struct cursor_visitor_data {
 };
 
 
+/* Searches for a treenode with the given path */
+static struct itreenode *search_treenode(struct itreenode *root, const char *path)
+{
+	struct itreenode *node = NULL;
+	if (!strcmp(root->path, path)) {
+		return root;
+	}
+	if (root->next) {
+		node = search_treenode(root->next, path);
+	}
+	if (node == NULL &&root->first_child) {
+		node = search_treenode(root->first_child, path);
+	}
+	return node;
+}
+
 /* Adds another include to the include tree */
 static void include_visitor(CXFile file, CXSourceLocation *stack, unsigned len, CXClientData baton)
 {
@@ -75,20 +91,30 @@ static void include_visitor(CXFile file, CXSourceLocation *stack, unsigned len, 
 
 	const char *path = clang_getCString(clang_getFileName(file));
 	struct include_visitor_data *data = (struct include_visitor_data *)baton;
-	data->num_includes++;
 
 	if (len == 0) { /* New root node */
 		assert(data->root == NULL);
 		data->root = calloc(1, sizeof(struct itreenode));
 		data->root->path = strdup(path);
 		data->last = data->root;
+		data->num_includes++;
 		if (verbosity > 0) {
 			printf("#include %s\n", data->root->path);
 		}
 		return;
 	}
 
+	/* Process each header only once */
+	if ((node = search_treenode(data->root, path)) != NULL) {
+		data->last = node;
+			if (verbosity > 3) {
+				printf("SKIP: #include %s\n", path);
+		}
+		return;
+	}
+
 	/* Insert new child node */
+	data->num_includes++;
 
 	assert(data->root != NULL);
 
@@ -100,6 +126,11 @@ static void include_visitor(CXFile file, CXSourceLocation *stack, unsigned len, 
 	parent_node = data->last;
 	while (parent_node && strcmp(parent_node->path, parent_path)) {
 		parent_node = parent_node->parent;
+	}
+
+	/* Thanks to node skipping, upwards is not the only way */
+	if (parent_node == NULL) {
+		parent_node = search_treenode(data->root, parent_path);
 	}
 	if (parent_node == NULL) {
 		parent_node = data->root;
