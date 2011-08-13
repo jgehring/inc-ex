@@ -11,6 +11,26 @@ or fork the project at:
 	http://github.com/jgehring/inc-ex
 
 
+Usage
+-----
+Please refer to the INSTALL document first. Afterwards, the incex
+excutable can be used like a compiler. For a normal make-based program,
+the following commands can be used:
+
+	$ make clean
+	$ make -s -k CC=incex
+
+The -k switch may be necessary, since Inc-Ex won't produce object files
+and won't link them. For C++ projects, use CXX=incex instead.
+
+
+Known Bugs
+----------
+Currently, false positives will be reported if headers are included
+multiple times and resulting in different contents. Please see
+tests/t2.cpp.in for an example.
+
+
 License
 -------
 Inc-Ex is free software and released under a 3-clause BSD license
