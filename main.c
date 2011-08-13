@@ -374,6 +374,9 @@ int main(int argc, char **argv)
 	}
 #endif
 
+	/* End marker is useful when running with make(1) */
+	printf("========================================================================\n");
+
 	/* No cleanup here, let the OS handle this */
 	return 0;
 }
