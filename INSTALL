@@ -2,9 +2,9 @@ Inc-Ex - Report redundant includes in C/C++ code
 ================================================
 
 Installation should be simple: Make sure that you've installed the
-LLVM and Clang development files (headers and libraries). If necessary,
-adjust the first few variables in the Makefile. Afterwards, run 'make'
-to build the program.
+LLVM and Clang development files (headers and libraries, I've tested it
+with version 2.9). If necessary, adjust the first few variables in the
+Makefile. Afterwards, run 'make' to build the program.
 
 Finally, you might want to copy the "incex" program to /usr/local/bin
 or similar.
