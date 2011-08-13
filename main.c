@@ -62,6 +62,7 @@ struct cursor_visitor_data {
 	const char *source;
 	struct itreenode **includes;
 	int num_includes;
+	enum CXLanguageKind language;
 };
 
 
@@ -200,6 +201,12 @@ static enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, 
 		return CXChildVisit_Recurse;
 	}
 
+	/* Check language.
+	 * The enumeration is sorted C -> Obj-C -> C++, so use the maximum value. */
+	if (clang_getCursorLanguage(cursor) > data->language) {
+		data->language = clang_getCursorLanguage(cursor);
+	}
+
 	/* For declarations and instantiatons, lookup definition
 	 * and increase reference count of the corresponding location */
 	if (kind == CXCursor_DeclRefExpr ||
@@ -267,6 +274,16 @@ static void print_referenced_children(struct itreenode *node, const char *format
 	if (node->first_child) {
 		print_referenced_children(node->first_child, format);
 	}
+}
+
+/* Checks if the given path has an extension */
+static int has_extension(const char *path)
+{
+	char *ptr = strrchr(path, '.');
+	if (ptr == NULL) {
+		return 0;
+	}
+	return (strchr(ptr, '/') == NULL);
 }
 
 #ifndef NDEBUG
@@ -360,8 +377,11 @@ int main(int argc, char **argv)
 			if (count_child_references(tmp_node) == 0) {
 				printf("Unreferenced header: %s\n", tmp_node->path);
 			} else {
-				printf("Indirectly referenced header: %s\n", tmp_node->path);
-				print_referenced_children(tmp_node, "  [includes referenced header: %s]\n");
+				/* In C++, it's common to have indirect header files without extension */
+				if (cv_data.language != CXLanguage_CPlusPlus || has_extension(tmp_node->path)) {
+					printf("Indirectly referenced header: %s\n", tmp_node->path);
+					print_referenced_children(tmp_node, "  [includes referenced header: %s]\n");
+				}
 			}
 		}
 		tmp_node = tmp_node->next;
