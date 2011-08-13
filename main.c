@@ -253,6 +253,39 @@ static int count_child_references(struct itreenode *node)
 	return n;
 }
 
+/* Prints all children with non-zero reference counts */
+static void print_referenced_children(struct itreenode *node, const char *format)
+{
+	struct itreenode *child = node->first_child;
+
+	while (child) {
+		if (child->refcount > 0) {
+			printf(format, child->path);
+		}
+		child = child->next;
+	}
+	if (node->first_child) {
+		print_referenced_children(node->first_child, format);
+	}
+}
+
+#ifndef NDEBUG
+
+/* Prints reference count of includes */
+static void print_reference_count(struct itreenode *node)
+{
+	printf("%d (%d) %s\n", node->refcount, count_child_references(node), node->path);
+
+	if (node->next) {
+		print_reference_count(node->next);
+	}
+	if (node->first_child) {
+		print_reference_count(node->first_child);
+	}
+}
+
+#endif /* NDEBUG */
+
 
 /* Program entry point */
 int main(int argc, char **argv)
@@ -330,10 +363,18 @@ int main(int argc, char **argv)
 				printf("Unreferenced header: %s\n", tmp_node->path);
 			} else {
 				printf("Indirectly referenced header: %s\n", tmp_node->path);
+				print_referenced_children(tmp_node, "  [includes referenced header: %s]\n");
 			}
 		}
 		tmp_node = tmp_node->next;
 	}
+
+	/* Debug: print reference counts */
+#ifndef NDEBUG
+	if (verbosity > 4) {
+		print_reference_count(iv_data.root->first_child);
+	}
+#endif
 
 	/* No cleanup here, let the OS handle this */
 	return 0;
