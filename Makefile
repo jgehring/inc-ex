@@ -33,7 +33,7 @@ clean:
 TESTS = $(wildcard tests/*.c.in)
 
 tests/*.c.in: FORCE
-	@./$(PROGRAM) $@ -x c 
+	@./$(PROGRAM) -x c $@
 
 check: $(PROGRAM) $(TESTS)
 
