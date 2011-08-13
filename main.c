@@ -106,10 +106,11 @@ static void include_visitor(CXFile file, CXSourceLocation *stack, unsigned len, 
 	}
 
 	/* Process each header only once */
+	/* TODO: Speed this up! */
 	if ((node = search_treenode(data->root, path)) != NULL) {
 		data->last = node;
-			if (verbosity > 3) {
-				printf("SKIP: #include %s\n", path);
+		if (verbosity > 3) {
+			printf("SKIP: #include %s\n", path);
 		}
 		return;
 	}
