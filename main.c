@@ -398,6 +398,7 @@ int main(int argc, char **argv)
 	/* End marker is useful when running with make(1) */
 	printf("========================================================================\n");
 
-	/* No cleanup here, let the OS handle this */
+	/* Cleanup clang data only, let the OS handle the rest */
+	clang_disposeTranslationUnit(unit);
 	return 0;
 }
