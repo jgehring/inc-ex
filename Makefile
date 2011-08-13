@@ -8,7 +8,7 @@ CLANG_INCLUDE = -I$(LLVM_PREFIX)/include
 CLANG_LIBS    = -L$(LLVM_PREFIX)/lib/llvm -lclang
 
 
-CFLAGS       += -g -Wall -ansi -pedantic -I$(CLANG_INCLUDE)
+CFLAGS       += -g -Wall -ansi -pedantic $(CLANG_INCLUDE)
 DEFINES      += -D_BSD_SOURCE
 LIBS         += $(CLANG_LIBS)
 
