@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 	struct itreenode *tmp_node;
 
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s [-v*] <source-file> [clang-args]\n", argv[0]);
+		fprintf(stderr, "Usage: %s [-v*] [compile-args]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -310,14 +310,10 @@ int main(int argc, char **argv)
 		while (argv[1][pos++] == 'v') {
 			verbosity++;
 		}
-		source = argv[2];
-		carg_start = 3;
-	} else {
-		source = argv[1];
 		carg_start = 2;
+	} else {
+		carg_start = 1;
 	}
-
-	printf("Parsing %s ...\n", source);
 
 	/* Parse source file and setup cursor */
 	index = clang_createIndex(1, 1);
@@ -325,7 +321,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Error creating index\n");
 		return 1;
 	}
-	unit = clang_parseTranslationUnit(index, source, (const char * const *)argv+carg_start, argc-carg_start,  NULL, 0, CXTranslationUnit_DetailedPreprocessingRecord);
+	unit = clang_parseTranslationUnit(index, NULL, (const char * const *)argv+carg_start, argc-carg_start,  NULL, 0, CXTranslationUnit_DetailedPreprocessingRecord);
 	if (unit == NULL) {
 		fprintf(stderr, "Error parsing source file\n");
 		return 1;
@@ -343,6 +339,8 @@ int main(int argc, char **argv)
 	if (iv_data.root == NULL) {
 		return 1;
 	}
+	source = iv_data.root->path;
+	printf("Parsed %s\n", source);
 
 	/* Build sorted list of includes for faster lookup during AST traversal */
 	cv_data.includes = malloc(sizeof(struct itreenode *) * iv_data.num_includes);
