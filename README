@@ -6,7 +6,9 @@ headers included in a C/C++ source file. It uses the Clang, a front-end
 for the LLVM compiler.
 
 Feel free to send feedback and bug reports to:
-	Jonas Gehring jonas.gehring@boolsoft.org>
+	Jonas Gehring <jonas.gehring@boolsoft.org>
+or fork the project at:
+	http://github.com/jgehring/inc-ex
 
 
 License
