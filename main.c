@@ -192,6 +192,12 @@ static enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, 
 	struct cursor_visitor_data *data = (struct cursor_visitor_data *)baton;
 	enum CXCursorKind kind = clang_getCursorKind(cursor);
 
+	/* Check language. The enumeration is sorted C -> Obj-C -> C++, so
+	 * use the maximum value. */
+	if (clang_getCursorLanguage(cursor) > data->language) {
+		data->language = clang_getCursorLanguage(cursor);
+	}
+
 	/* Only process cursors in the source file */
 	clang_getInstantiationLocation(clang_getCursorLocation(cursor), &file, &line, &column, &offset);
 	path = clang_getCString(clang_getFileName(file));
@@ -200,12 +206,6 @@ static enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, 
 			printf("SKIP: %s from %s [%s]\n", clang_getCString(clang_getCursorSpelling(cursor)), clang_getCString(clang_getFileName(file)), clang_getCString(clang_getCursorKindSpelling(kind)));
 		}
 		return CXChildVisit_Recurse;
-	}
-
-	/* Check language.
-	 * The enumeration is sorted C -> Obj-C -> C++, so use the maximum value. */
-	if (clang_getCursorLanguage(cursor) > data->language) {
-		data->language = clang_getCursorLanguage(cursor);
 	}
 
 	/* For declarations and instantiatons, lookup definition
