@@ -349,6 +349,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	source = clang_getCString(clang_getTranslationUnitSpelling(unit));
+	printf("Parsed %s\n", source);
+
 	/* Build include tree */
 	iv_data.root = iv_data.last = NULL;
 	iv_data.num_includes = 0;
@@ -356,8 +359,6 @@ int main(int argc, char **argv)
 	if (iv_data.root == NULL) {
 		return 1;
 	}
-	source = iv_data.root->path;
-	printf("Parsed %s\n", source);
 
 	/* Build sorted list of includes for faster lookup during AST traversal */
 	cv_data.includes = malloc(sizeof(struct itreenode *) * iv_data.num_includes);
