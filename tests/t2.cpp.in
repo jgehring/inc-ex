@@ -1,0 +1,9 @@
+#include <string>   // Will include stdio.h, but only for FILE
+#include <cstdio>   // Will include the whole stdio.h, including printf(1)
+
+int main()
+{
+	std::string hello = "Hello";
+	printf("%s\n", hello.c_str());
+	return 0;
+}

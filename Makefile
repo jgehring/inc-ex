@@ -30,10 +30,13 @@ clean:
 
 
 # Testing
-TESTS = $(wildcard tests/*.c.in)
+TESTS = $(wildcard tests/*.c.in) $(wildcard tests/*.cpp.in)
 
 tests/*.c.in: FORCE
 	@./$(PROGRAM) -x c $@
+
+tests/*.cpp.in: FORCE
+	@./$(PROGRAM) -x c++ $@
 
 check: $(PROGRAM) $(TESTS)
 
