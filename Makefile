@@ -2,11 +2,15 @@
 # Inc-Ex - Report redundant includes in C/C++ code
 #
 
+# LLVM / Clang location
 LLVM_PREFIX   = /usr
-CFLAGS       += -g -Wall -ansi -pedantic -I$(LLVM_PREFIX)/include
+CLANG_INCLUDE = -I$(LLVM_PREFIX)/include
+CLANG_LIBS    = -L$(LLVM_PREFIX)/lib/llvm -lclang
+
+
+CFLAGS       += -g -Wall -ansi -pedantic -I$(CLANG_INCLUDE)
 DEFINES      += -D_BSD_SOURCE
-LDFLAGS      += -L$(LLVM_PREFIX)/lib/llvm
-LIBS         +=  -lclang
+LIBS         += $(CLANG_LIBS)
 
 PROGRAM = incex
 SOURCES = main.c
