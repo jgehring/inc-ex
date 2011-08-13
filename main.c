@@ -240,29 +240,24 @@ static enum CXChildVisitResult cursor_visitor(CXCursor cursor, CXCursor parent, 
 	return CXChildVisit_Recurse;
 }
 
-/* Count total reference count of node and children */
+/* Sum up total reference count of node and children */
 static int count_child_references(struct itreenode *node)
 {
-	struct itreenode *child;
+	struct itreenode *child = node->first_child;
 	int n = 0;
 
-	if (node->first_child == NULL) {
-		return 0;
-	}
-
-	child = node->first_child;
 	while (child) {
-		n += child->refcount;
+		n += child->refcount + count_child_references(child);
 		child = child->next;
 	}
-	return n + count_child_references(node->first_child);
+	return n;
 }
 
 
 /* Program entry point */
 int main(int argc, char **argv)
 {
-	char *source;
+	const char *source;
 	int carg_start;
 	CXIndex index;
 	CXTranslationUnit unit;
