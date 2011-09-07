@@ -14,7 +14,7 @@ or fork the project at:
 Usage
 -----
 Please refer to the INSTALL document first. Afterwards, the incex
-excutable can be used like a compiler. For a normal make-based program,
+executable can be used like a compiler. For a normal make-based program,
 the following commands can be used:
 
 	$ make clean
@@ -22,6 +22,15 @@ the following commands can be used:
 
 The -k switch may be necessary, since Inc-Ex won't produce object files
 and won't link them. For C++ projects, use CXX=incex instead.
+
+Currently, Inc-Ex reports two issues:
+
+	* Unreferenced header: A header is included using #include, but none
+	  of its symbols is used in the source file
+	* Indirectly referenced header: A header is included using #include,
+	  and although non of its symbols is used in the source file, the
+	  header includes other headers which are required. This won't be
+	  reported for C++ wrapper headers without extensions.
 
 
 Known Bugs
