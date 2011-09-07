@@ -48,10 +48,13 @@ struct itreenode {
 	const char *path;
 	int level;
 	int refcount;
+
+	int line, column; /* Location of parent's #include */
 };
 
 /* Baton for include_visitor() */
 struct include_visitor_data {
+	CXTranslationUnit unit;
 	struct itreenode *root; /* Root node, to be allocated */
 	struct itreenode *last; /* Last node, most likely a parent */
 	int num_includes;
@@ -143,6 +146,8 @@ static void include_visitor(CXFile file, CXSourceLocation *stack, unsigned len, 
 	node->path = strdup(path);
 	node->level = parent_node->level + 1;
 	node->parent = parent_node;
+	node->line = line;
+	node->column = column;
 
 	/* Insert child node in parent list */
 	if (parent_node->first_child == NULL) {
@@ -268,7 +273,7 @@ static void print_referenced_children(struct itreenode *node, const char *format
 
 	while (child) {
 		if (child->refcount > 0) {
-			printf(format, child->path);
+			fprintf(stderr, format, child->path, node->path, child->line, child->column);
 		}
 		child = child->next;
 	}
@@ -316,6 +321,7 @@ int main(int argc, char **argv)
 	struct include_visitor_data iv_data;
 	struct cursor_visitor_data cv_data;
 	struct itreenode *tmp_node;
+	char referenced_fmt[4096];
 
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s [-v*] [compile-args]\n", argv[0]);
@@ -351,9 +357,9 @@ int main(int argc, char **argv)
 	}
 
 	source = clang_getCString(clang_getTranslationUnitSpelling(unit));
-	printf("Parsed %s\n", source);
 
 	/* Build include tree */
+	iv_data.unit = unit;
 	iv_data.root = iv_data.last = NULL;
 	iv_data.num_includes = 0;
 	clang_getInclusions(unit, &include_visitor, &iv_data);
@@ -377,12 +383,17 @@ int main(int argc, char **argv)
 	while (tmp_node) {
 		if (tmp_node->refcount == 0) {
 			if (count_child_references(tmp_node) == 0) {
-				printf("Unreferenced header: %s\n", tmp_node->path);
+				fprintf(stderr, "%s:%d:%d: ", source, tmp_node->line, tmp_node->column);
+				fprintf(stderr, "Unreferenced header: %s\n", tmp_node->path);
 			} else {
 				/* In C++, it's common to have indirect header files without extension */
 				if (cv_data.language != CXLanguage_CPlusPlus || has_extension(tmp_node->path)) {
-					printf("Indirectly referenced header: %s\n", tmp_node->path);
-					print_referenced_children(tmp_node, "  [includes referenced header: %s]\n");
+					fprintf(stderr, "%s:%d:%d: ", source, tmp_node->line, tmp_node->column);
+					fprintf(stderr, "Indirectly referenced header: %s\n", tmp_node->path);
+
+					snprintf(referenced_fmt, sizeof(referenced_fmt), "%s:%d:%d: ", source, tmp_node->line, tmp_node->column);
+					strncat(referenced_fmt, "   references %s at %s:%d:%d\n", sizeof(referenced_fmt));
+					print_referenced_children(tmp_node, referenced_fmt);
 				}
 			}
 		}
@@ -395,9 +406,6 @@ int main(int argc, char **argv)
 		print_reference_count(iv_data.root->first_child);
 	}
 #endif
-
-	/* End marker is useful when running with make(1) */
-	printf("========================================================================\n");
 
 	/* Cleanup clang data only, let the OS handle the rest */
 	clang_disposeTranslationUnit(unit);
