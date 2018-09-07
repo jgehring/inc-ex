@@ -3,12 +3,12 @@
 #
 
 # $(CLANG_INCLUDE)/clang-c/Index.h is needed
-CLANG_INCLUDE = -I/usr/include
+CLANG_INCLUDE = -I/usr/lib/llvm-3.8/include
 # Link against libclang
-CLANG_LIBS    = -L/usr/lib/llvm -lclang
+CLANG_LIBS    = -L/usr/lib/llvm-3.8/lib/ -lclang
 
 
-CFLAGS       += -g -Wall -ansi -pedantic $(CLANG_INCLUDE)
+CFLAGS       += -O2 -g -Wall -pedantic $(CLANG_INCLUDE)
 DEFINES      += -D_BSD_SOURCE
 LIBS         += $(CLANG_LIBS)
 
@@ -23,7 +23,7 @@ all: $(PROGRAM)
 	$(CC) $(CFLAGS) $(DEFINES) -c -o $@ $<
 
 $(PROGRAM): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(LIBS) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 
 clean:
 	rm -rf $(PROGRAM) $(OBJECTS)
