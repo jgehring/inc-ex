@@ -28,7 +28,7 @@ Currently, Inc-Ex reports two issues:
 	* Unreferenced header: A header is included using #include, but none
 	  of its symbols is used in the source file
 	* Indirectly referenced header: A header is included using #include,
-	  and although non of its symbols is used in the source file, the
+	  and although none of its symbols is used in the source file, the
 	  header includes other headers which are required. This won't be
 	  reported for C++ wrapper headers without extensions.
 
